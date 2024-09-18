@@ -44,7 +44,7 @@ services:
     build: ../backend/foodgram/
     env_file: ../.env
     volumes:
-      - foodgram_static:/collected_static/
+      - foodgram_static:/app/collected_static/
       - foodgram_media:/app/media/
     depends_on:
       - db

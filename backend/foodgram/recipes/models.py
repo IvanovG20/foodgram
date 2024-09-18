@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from foodgram.settings import BASE_DIR
-
 
 User = get_user_model()
 
@@ -50,7 +48,7 @@ class Recipe(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
-        upload_to=f'{BASE_DIR}/media/',
+        upload_to='recipes/',
         verbose_name='Картинка рецепта'
     )
     text = models.TextField(
