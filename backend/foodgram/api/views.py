@@ -172,22 +172,6 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def partial_update(self, request, *args, **kwargs):
-        partial = True
-        instance = self.get_object()
-        serializer = CreateRecipeSerializer(
-            instance, data=request.data, partial=partial
-        )
-        if serializer.is_valid():
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK
-            )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
     @action(detail=True, methods=['get'],
             url_path='get-link')
     def get_link(self, request, pk):

@@ -44,6 +44,9 @@ class User(AbstractUser):
         verbose_name='Аватар пользователя'
     )
 
+    def __str__(self):
+        return self.username
+
 
 class Follow(models.Model):
     user = models.ForeignKey(

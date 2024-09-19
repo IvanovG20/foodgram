@@ -5,9 +5,23 @@ from recipes.models import (Tag, Recipe, RecipeIngredient,
                             Ingredient)
 
 
+class RecipeIngredientInLine(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
+class RecipeTagInLine(admin.TabularInline):
+    model = RecipeTag
+    extra = 1
+
+
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author')
+    inlines = (RecipeIngredientInLine, RecipeTagInLine,)
+    list_display = ('name', 'author', 'is_favorited')
     list_filter = ('author', 'name', 'tags__name')
+
+    def is_favorited(self, obj):
+        return obj.favorite.count()
 
 
 class IngredientAdmin(admin.ModelAdmin):

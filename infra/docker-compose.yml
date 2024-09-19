@@ -30,7 +30,6 @@ services:
       - backend
 
 
-
   db:
     container_name: db-foodgram
     image: postgres:13-alpine

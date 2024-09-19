@@ -17,20 +17,28 @@ class Tag(models.Model):
         verbose_name='Уникальный слаг'
     )
 
+    class Meta:
+        verbose_name = 'тег'
+        verbose_name_plural = 'Теги'
+
     def __str__(self):
         return self.name
 
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True,
         verbose_name='Название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=50,
+        max_length=100,
         verbose_name='Единица измерения'
     )
+
+    class Meta:
+        verbose_name = 'ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return self.name
@@ -70,6 +78,10 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты рецепта'
     )
 
+    class Meta:
+        verbose_name = 'рецепт'
+        verbose_name_plural = 'Рецепты'
+
     def __str__(self):
         return self.name
 
@@ -78,9 +90,14 @@ class RecipeTag(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_tag'
+        related_name='recipe_tag',
+        verbose_name='рецепт'
     )
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='тег'
+    )
 
     class Meta:
         constraints = [
@@ -89,16 +106,20 @@ class RecipeTag(models.Model):
                 name='recipetag_unique'
             )
         ]
+        verbose_name = 'тег рецепта'
+        verbose_name_plural = 'Теги рецепта'
 
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='ingredient'
+        related_name='ingredient',
+        verbose_name='рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        verbose_name='ингредиент'
     )
     amount = models.PositiveBigIntegerField(
         verbose_name='Колличество ингредиента'
@@ -111,6 +132,8 @@ class RecipeIngredient(models.Model):
                 name='recipeingredient_unique'
             )
         ]
+        verbose_name = 'ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецепта'
 
 
 class Favorite(models.Model):
@@ -131,6 +154,9 @@ class Favorite(models.Model):
             )
         ]
 
+        verbose_name = 'избранное'
+        verbose_name_plural = 'Избранные'
+
 
 class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
@@ -149,3 +175,5 @@ class ShoppingCart(models.Model):
                 name='shopping_cart_unique'
             )
         ]
+        verbose_name = 'корзина покупок'
+        verbose_name = 'Корзины покупок'

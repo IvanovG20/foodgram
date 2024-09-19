@@ -247,10 +247,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 )
         return data
 
-    def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
+    def set_tags_ingredients(self, recipe, tags, ingredients):
         for ingredient in ingredients:
             current_ingredient = ingredient.get('id')
             _, _ = RecipeIngredient.objects.get_or_create(
@@ -266,7 +263,22 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe,
                 tag=tag
             )
+
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        self.set_tags_ingredients(recipe, tags, ingredients)
         return recipe
+
+    def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        instance = super().update(instance, validated_data)
+        instance.ingredients.clear()
+        instance.tags.clear()
+        self.set_tags_ingredients(instance, tags, ingredients)
+        return instance
 
     def to_representation(self, instance):
         serializer = RecipeSerializer(instance)
