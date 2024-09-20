@@ -1,5 +1,3 @@
-import hashlib
-
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import action
@@ -11,7 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from api.serializers import (UserCreateSerializer, UserSerializer,
                              User, PasswordChangeSerializer, TagSerializer,
@@ -175,13 +173,20 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=['get'],
             url_path='get-link')
     def get_link(self, request, pk):
-        if self.get_object():
-            url = request.build_absolute_uri()
-            short_link = hashlib.sha256(
-                url.encode('utf-8')
-            ).hexdigest(3)
-            return Response({'short-link': short_link})
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        recipe = get_object_or_404(Recipe, pk=pk)
+        url = request.build_absolute_uri(f'/s/{recipe.short_link}')
+        return Response(
+            {'short-link': url},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['get'],
+            url_path=r's/(?P<short_link>\w+)')
+    def redirect_to_recipe(self, request, short_link):
+        recipe = get_object_or_404(Recipe, short_link=short_link)
+        return HttpResponseRedirect(
+            request.build_absolute_uri('/recipes/' + str(recipe.pk) + '/')
+        )
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])

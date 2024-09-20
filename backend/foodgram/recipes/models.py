@@ -1,8 +1,14 @@
+import random
+import string
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
+
+SHORT_LINK_CONST = 6
+INGREDIENT_CONST = 100
 
 
 class Tag(models.Model):
@@ -27,12 +33,12 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=100,
+        max_length=INGREDIENT_CONST,
         unique=True,
         verbose_name='Название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=100,
+        max_length=INGREDIENT_CONST,
         verbose_name='Единица измерения'
     )
 
@@ -78,9 +84,33 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты рецепта'
     )
 
+    short_link = models.CharField(
+        max_length=SHORT_LINK_CONST,
+        blank=True,
+        unique=True,
+        null=True,
+        verbose_name='Короткая ссылка',
+    )
+
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def generate_short_link(self):
+        while True:
+            short_link = ''.join(
+                random.choices(
+                    string.ascii_letters + string.digits,
+                    k=SHORT_LINK_CONST
+                )
+            )
+            if not Recipe.objects.filter(short_link=short_link).exists():
+                return short_link
+
+    def save(self, *args, **kwargs):
+        if not self.short_link:
+            self.short_link = self.generate_short_link()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
