@@ -92,7 +92,8 @@ class UserViewset(ModelViewSet):
         subs_list = user.follower.all()
         serializer = SubscriptionSerializer(
             self.paginate_queryset(subs_list),
-            many=True
+            many=True,
+            context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
