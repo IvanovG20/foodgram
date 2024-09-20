@@ -165,7 +165,7 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.request.method == ('POST' or 'PATCH'):
+        if self.request.method in ['POST', 'PATCH']:
             return CreateRecipeSerializer
         return RecipeSerializer
 
@@ -179,7 +179,7 @@ class RecipeViewSet(ModelViewSet):
             url = request.build_absolute_uri()
             short_link = hashlib.sha256(
                 url.encode('utf-8')
-            ).hexdigest()
+            ).hexdigest(3)
             return Response({'short-link': short_link})
         return Response(status=status.HTTP_404_NOT_FOUND)
 

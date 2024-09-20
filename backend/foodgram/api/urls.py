@@ -5,6 +5,9 @@ from rest_framework.routers import SimpleRouter
 from api.views import (UserViewset, TagViewSet,
                        IngredientViewSet, RecipeViewSet)
 
+
+app_name = 'api'
+
 router = SimpleRouter()
 router.register('users', UserViewset, basename='users')
 router.register('tags', TagViewSet, basename='tags')

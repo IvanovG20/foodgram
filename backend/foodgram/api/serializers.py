@@ -206,15 +206,10 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         if 'tags' not in data:
             raise serializers.ValidationError()
         tags = data.get('tags')
-        image = data.get('image')
         cooking_time = data.get('cooking_time')
         if cooking_time < 1:
             raise serializers.ValidationError(
                 'Время готовки не может быть меньше минуты'
-            )
-        if image is None:
-            raise serializers.ValidationError(
-                'Изображение обязательное для создания рецепта'
             )
         if len(ingredients) == 0:
             raise serializers.ValidationError(
