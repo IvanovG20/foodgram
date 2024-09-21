@@ -115,10 +115,13 @@ class UserViewset(ModelViewSet):
                     {'errors': 'Подписка уже оформлена!'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            queryset = Follow.objects.create(
+            obj = Follow.objects.create(
                 user=user, following=following
             )
-            serializer = SubscriptionSerializer(queryset)
+            serializer = SubscriptionSerializer(
+                obj,
+                context={'request': request},
+            )
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
@@ -273,7 +276,8 @@ class RecipeViewSet(ModelViewSet):
                 user=user, recipe=recipe
             )
             serializer = EasyRecipeSerializer(
-                recipe
+                recipe,
+                {'request': request}
             )
             return Response(
                 serializer.data,

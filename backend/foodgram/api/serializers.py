@@ -312,11 +312,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         if request:
-            recipes_limit = int(request.GET.get('recipes_limit'))
-            if recipes_limit:
-                recipes = obj.following.recipes.all()[:recipes_limit]
+            recipes_limit = request.GET.get('recipes_limit')
+            if recipes_limit is not None:
+                recipes = obj.following.recipes.all()[:int(recipes_limit)]
             else:
-                obj.following.recipes.all()
+                recipes = obj.following.recipes.all()
             if recipes:
                 serializer = EasyRecipeSerializer(
                     recipes,
