@@ -6,17 +6,6 @@ on:
       - main 
  
 jobs:
-  steps: 
-  - uses: actions/checkout@v3 
-  - name: Set up Python 
-    uses: actions/setup-python@v4 
-    with: 
-      python-version: 3.9 
- 
-  - name: Install dependencies 
-  run: | 
-    python -m pip install --upgrade pip 
-    pip install -r ./backend/foodgram/
 
   test_with_flake8:
     runs-on: ubuntu-latest
