@@ -154,7 +154,6 @@ class IngredientViewSet(ModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().order_by('-id')
-    pagination_class = LimitOffsetPagination
     permission_classes = [IsAuthorOrRead,]
     http_method_names = [
         'get', 'post', 'patch', 'delete'
