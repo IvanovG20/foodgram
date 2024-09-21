@@ -1,27 +1,24 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
-
-from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import (UserCreateSerializer, UserSerializer,
-                             User, PasswordChangeSerializer, TagSerializer,
-                             IngredientSerializer, RecipeSerializer,
-                             CreateRecipeSerializer, SubscriptionSerializer,
-                             EasyRecipeSerializer,)
 from api.filters import RecipeFilter
 from api.permissions import IsAuthorOrRead
-
-from recipes.models import (Tag, Ingredient, Recipe,
-                            ShoppingCart, RecipeIngredient,
-                            Favorite)
+from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
+                             IngredientSerializer, PasswordChangeSerializer,
+                             RecipeSerializer, SubscriptionSerializer,
+                             TagSerializer, User, UserCreateSerializer,
+                             UserSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import Follow
 
 
