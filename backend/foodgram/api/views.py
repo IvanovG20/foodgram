@@ -277,7 +277,6 @@ class RecipeViewSet(ModelViewSet):
             )
             serializer = EasyRecipeSerializer(
                 recipe,
-                {'request': request}
             )
             return Response(
                 serializer.data,

@@ -21,7 +21,7 @@ DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = env.list(
     'ALLOWED_HOSTS',
-    default=['158.160.72.72, 127.0.0.1, localhost']
+    default=['158.160.72.72, 127.0.0.1, localhost, foodgram.ddns.net']
 )
 
 
