@@ -5,6 +5,7 @@ from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
                              RecipeSerializer, SubscriptionSerializer,
                              TagSerializer, User, UserCreateSerializer,
                              UserSerializer)
+from api.pagination import CustomPagination
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -23,7 +24,7 @@ from users.models import Follow
 
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -155,6 +156,7 @@ class IngredientViewSet(ModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().order_by('-id')
     permission_classes = [IsAuthorOrRead,]
+    pagination_class = CustomPagination
     http_method_names = [
         'get', 'post', 'patch', 'delete'
     ]
