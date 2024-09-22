@@ -148,13 +148,13 @@ class IngredientViewSet(ModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     http_method_names = ['get']
-    filter_backends = [SearchFilter,]
+    filter_backends = [SearchFilter, ]
     search_fields = ['^name']
 
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().order_by('-id')
-    permission_classes = [IsAuthorOrRead,]
+    permission_classes = [IsAuthorOrRead, ]
     pagination_class = CustomPagination
     http_method_names = [
         'get', 'post', 'patch', 'delete'
@@ -227,7 +227,7 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=False, methods=['get'],
-        permission_classes=[IsAuthenticated,])
+        permission_classes=[IsAuthenticated, ])
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
         recipes = [item.recipe.id for item in shopping_cart]
@@ -256,7 +256,7 @@ class RecipeViewSet(ModelViewSet):
         return response
 
     @action(detail=True, methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated,])
+            permission_classes=[IsAuthenticated, ])
     def favorite(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
