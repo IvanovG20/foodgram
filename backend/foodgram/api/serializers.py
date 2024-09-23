@@ -56,11 +56,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request:
-            user = self.context.get('request').user
-            if user.is_authenticated:
-                return user.follower.filter(user=obj).exists()
-        return False
+        return bool(
+            request
+            and request.user.is_authenticated
+            and obj.following.filter(user=request.user).exists()
+        )
 
 
 class PasswordChangeSerializer(serializers.Serializer):
@@ -193,6 +193,13 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             'ingredients', 'tags', 'image',
             'name', 'text', 'cooking_time'
         )
+
+    def validate_image(self, iamge_data):
+        if iamge_data is None:
+            raise serializers.ValidationError(
+                'Поле Картинка не должно быть пустым'
+            )
+        return iamge_data
 
     def validate(self, data):
         if 'ingredients' not in data:
