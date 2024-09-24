@@ -3,6 +3,8 @@ import string
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.core.validators import MinValueValidator
+
 
 User = get_user_model()
 
@@ -69,7 +71,8 @@ class Recipe(models.Model):
         verbose_name='Описание рецепта'
     )
     cooking_time = models.PositiveIntegerField(
-        verbose_name='Время готовки в минутах'
+        verbose_name='Время готовки в минутах',
+        validators=[MinValueValidator(limit_value=1)]
     )
     tags = models.ManyToManyField(
         Tag,
@@ -151,8 +154,9 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         verbose_name='ингредиент'
     )
-    amount = models.PositiveBigIntegerField(
-        verbose_name='Колличество ингредиента'
+    amount = models.PositiveIntegerField(
+        verbose_name='Колличество ингредиента',
+        validators=[MinValueValidator(limit_value=1)]
     )
 
     class Meta:

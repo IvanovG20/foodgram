@@ -1,6 +1,6 @@
 from api.filters import RecipeFilter
 from api.pagination import CustomPagination
-from api.permissions import IsAuthorOrRead
+from api.permissions import IsAuthorOrAuthenticatedOrRead
 from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
                              IngredientSerializer, PasswordChangeSerializer,
                              RecipeSerializer, SubscriptionSerializer,
@@ -154,7 +154,7 @@ class IngredientViewSet(ModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().order_by('-id')
-    permission_classes = [IsAuthorOrRead, ]
+    permission_classes = [IsAuthorOrAuthenticatedOrRead, ]
     pagination_class = CustomPagination
     http_method_names = [
         'get', 'post', 'patch', 'delete'

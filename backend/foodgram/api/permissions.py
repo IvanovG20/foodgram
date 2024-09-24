@@ -1,7 +1,7 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
-class IsAuthorOrRead(BasePermission):
+class IsAuthorOrAuthenticatedOrRead(BasePermission):
 
     def has_permission(self, request, view):
         return (
