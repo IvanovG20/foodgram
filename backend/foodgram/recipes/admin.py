@@ -15,25 +15,49 @@ class RecipeTagInLine(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInLine, RecipeTagInLine,)
-    list_display = ('name', 'author', 'is_favorited',
-                    'ingredients', 'tags')
+    list_display = (
+        'name', 'author', 'favorite_count',
+        'ingredients_in_recipe', 'tags_in_recipe',
+    )
     list_filter = ('author', 'name', 'tags__name',)
     search_fields = (
         'name', 'author', 'tags__name',
         'ingredients__name',
     )
 
-    @admin.display(description='Избранное')
-    def is_favorited(self, obj):
+    @admin.display(description='Добавили в избранное')
+    def favorite_count(self, obj):
         return obj.favorite.count()
 
     @admin.display(description='Теги рецепта')
-    def tags(self, obj):
-        return [str(tag.name) for tag in obj.recipe_tag.all()]
+    def tags_in_recipe(self, obj):
+        tags = obj.recipe_tag.values('tag__name').order_by('tag__name')
+        return ', '.join([tag['tag__name'] for tag in tags])
 
     @admin.display(description='Ингредиенты рецепта')
-    def ingredients(self, obj):
-        return [str(ingredient.name) for ingredient in obj.ingredient.all()]
+    def ingredients_in_recipe(self, obj):
+        ingredients = (
+            RecipeIngredient.objects.filter(recipe=obj)
+            .values(
+                'ingredient__name',
+                'amount',
+                'ingredient__measurement_unit',
+            )
+            .order_by(
+                'ingredient__name',
+                'ingredient__measurement_unit',
+            )
+        )
+        return ', '.join(
+            [
+                (
+                    f"{ingredient['ingredient__name']} - "
+                    f"{ingredient['amount']} "
+                    f"{ingredient['ingredient__measurement_unit']}"
+                )
+                for ingredient in ingredients
+            ]
+        )
 
 
 class IngredientAdmin(admin.ModelAdmin):

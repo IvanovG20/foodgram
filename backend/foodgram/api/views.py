@@ -222,25 +222,28 @@ class RecipeViewSet(ModelViewSet):
         detail=False, methods=['get'],
         permission_classes=[IsAuthenticated, ])
     def download_shopping_cart(self, request):
-        shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
-        recipes = [item.recipe.id for item in shopping_cart]
-        buy_objects = (
-            RecipeIngredient.objects.filter(recipe__in=recipes)
-            .values('ingredient')
-            .annotate(amount=Sum('amount'))
-        )  # self.request.user.shopping_cart.ingredients.values()
+        ingredients = (
+            RecipeIngredient.objects.filter(
+                recipe__shopping_cart__user=request.user
+            ).values(
+                'ingredient__name',
+                'ingredient__measurement_unit'
+            ).annotate(
+                total_amount=Sum('amount')
+            ).order_by(
+                'ingredient__name',
+                'ingredient__measurement_unit',
+            )
+        )
         purchase_list = [
             'Список покупок:',
         ]
-        for obj in buy_objects:
-            ingredient = Ingredient.objects.get(pk=obj['ingredient'])
-            amount = obj['amount']
-            purchase_list.append(
-                f'{ingredient.name}: {amount},'
-                f'{ingredient.measurement_unit}'
-            )
+        for ingredient in ingredients:
+            name = ingredient['ingredient__name']
+            unit = ingredient['ingredient__measurement_unit']
+            total_amount = ingredient['total_amount']
+            purchase_list.append(f'{name}: {total_amount}, 'f'{unit}')
         purchase_file = "\n".join(purchase_list)
-
         response = HttpResponse(purchase_file, content_type='text/plain')
         response[
             'Content-Disposition'
