@@ -4,6 +4,7 @@ import string
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from recipes.constants import (INGREDIENT_CONST, MAX_LIMIT_VALUE,
                                MIN_LIMIT_VALUE, RECIPE_NAME_CONST,
                                SHORT_LINK_CONST, TAG_CONST)

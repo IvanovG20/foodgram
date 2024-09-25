@@ -1,3 +1,14 @@
+from django.db.models import Sum
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+
 from api.filters import RecipeFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAuthenticatedOrRead
@@ -6,18 +17,8 @@ from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
                              RecipeSerializer, SubscriptionCreateSerializer,
                              SubscriptionShowSerializer, TagSerializer, User,
                              UserCreateSerializer, UserSerializer)
-from django.db.models import Sum
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from users.models import Follow
 
 
