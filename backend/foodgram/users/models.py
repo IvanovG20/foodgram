@@ -62,7 +62,12 @@ class Follow(models.Model):
                 name='unique_user_following'
             )
         ]
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
 
     def clean(self):
         if self.user == self.following:
             raise ValidationError('Нельзя подписаться на самого себя')
+
+    def __str__(self):
+        return 'Подписки'
