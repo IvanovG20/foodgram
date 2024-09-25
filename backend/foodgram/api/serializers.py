@@ -280,6 +280,29 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count', 'avatar'
         )
 
+    def validate(self, data):
+        user = data.get('user')
+        following = data.get('following')
+        if user == following:
+            raise serializers.ValidationError(
+                'Нельзя отписаться или подписаться на себя'
+            )
+
+        if Follow.objects.filter(
+            user=user, following=following
+        ).exists():
+            raise serializers.ValidationError(
+                'Подписка уже оформлена'
+            )
+
+        if not Follow.objects.filter(
+            user=user, following=following
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже отписаны'
+            )
+        return data
+
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request:

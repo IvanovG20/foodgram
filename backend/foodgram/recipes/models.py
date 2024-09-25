@@ -3,23 +3,24 @@ import string
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+from recipes.constants import (TAG_CONST, INGREDIENT_CONST,
+                               SHORT_LINK_CONST, RECIPE_NAME_CONST,
+                               MAX_LIMIT_VALUE, MIN_LIMIT_VALUE)
 
 
 User = get_user_model()
 
-SHORT_LINK_CONST = 6
-INGREDIENT_CONST = 100
-
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=32,
+        max_length=TAG_CONST,
         unique=True,
         verbose_name='Название тега'
     )
     slug = models.SlugField(
-        max_length=32,
+        max_length=TAG_CONST,
         unique=True,
         verbose_name='Уникальный слаг'
     )
@@ -59,7 +60,7 @@ class Recipe(models.Model):
         related_name='recipes'
     )
     name = models.CharField(
-        max_length=256,
+        max_length=RECIPE_NAME_CONST,
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
@@ -70,9 +71,12 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание рецепта'
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время готовки в минутах',
-        validators=[MinValueValidator(limit_value=1)]
+        validators=[
+            MinValueValidator(limit_value=MIN_LIMIT_VALUE),
+            MaxValueValidator(limit_value=MAX_LIMIT_VALUE)
+        ]
     )
     tags = models.ManyToManyField(
         Tag,
@@ -154,9 +158,12 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         verbose_name='ингредиент'
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Колличество ингредиента',
-        validators=[MinValueValidator(limit_value=1)]
+        validators=[
+            MinValueValidator(limit_value=MIN_LIMIT_VALUE),
+            MaxValueValidator(limit_value=MAX_LIMIT_VALUE)
+        ]
     )
 
     class Meta:

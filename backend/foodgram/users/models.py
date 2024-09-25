@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from users.validators import username_valdation
 
@@ -61,3 +62,7 @@ class Follow(models.Model):
                 name='unique_user_following'
             )
         ]
+
+    def clean(self):
+        if self.user == self.following:
+            raise ValidationError('Нельзя подписаться на самого себя')
