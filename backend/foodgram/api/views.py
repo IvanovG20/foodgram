@@ -3,9 +3,9 @@ from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAuthenticatedOrRead
 from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
                              IngredientSerializer, PasswordChangeSerializer,
-                             RecipeSerializer, SubscriptionShowSerializer,
-                             TagSerializer, User, UserCreateSerializer,
-                             UserSerializer, SubscriptionCreateSerializer)
+                             RecipeSerializer, SubscriptionCreateSerializer,
+                             SubscriptionShowSerializer, TagSerializer, User,
+                             UserCreateSerializer, UserSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
