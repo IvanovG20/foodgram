@@ -3,16 +3,16 @@ from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAuthenticatedOrRead
 from api.serializers import (CreateRecipeSerializer, EasyRecipeSerializer,
                              IngredientSerializer, PasswordChangeSerializer,
-                             RecipeSerializer, SubscriptionSerializer,
+                             RecipeSerializer, SubscriptionShowSerializer,
                              TagSerializer, User, UserCreateSerializer,
-                             UserSerializer)
+                             UserSerializer, SubscriptionCreateSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from rest_framework import status, generics
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -84,8 +84,10 @@ class UserViewset(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         user = request.user
-        subs_list = user.follower.all()
-        serializer = SubscriptionSerializer(
+        subs_list = User.objects.filter(
+            following__in=user.follower.all()
+        )
+        serializer = SubscriptionShowSerializer(
             self.paginate_queryset(subs_list),
             many=True,
             context={'request': request}
@@ -95,15 +97,17 @@ class UserViewset(ModelViewSet):
     @action(detail=True, methods=['post',],
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, pk):
-        user = self.request.user
         following = get_object_or_404(User, pk=pk)
-        obj = Follow.objects.create(
-            user=user, following=following
-        )
-        serializer = SubscriptionSerializer(
-            obj,
+        data = {
+            'user': self.request.user.pk,
+            'following': following.pk,
+        }
+        serializer = SubscriptionCreateSerializer(
+            data=data,
             context={'request': request},
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED
@@ -113,20 +117,21 @@ class UserViewset(ModelViewSet):
     def delete_subscribe(self, request, pk):
         user = self.request.user
         following = get_object_or_404(User, pk=pk)
-        follow = get_object_or_404(
-            Follow, user=user, following=following
-        )
-        follow.delete()
+        deletes_count, _ = Follow.objects.filter(
+            user=user, following=following
+        ).delete()
+        if deletes_count == 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TagListView(generics.ListAPIView):
+class TagViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
-class IngredientListView(generics.ListAPIView):
+class IngredientViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None

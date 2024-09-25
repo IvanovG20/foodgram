@@ -261,66 +261,25 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    email = serializers.ReadOnlyField(source='following.email')
-    id = serializers.ReadOnlyField(source='following.id')
-    username = serializers.ReadOnlyField(source='following.username')
-    first_name = serializers.ReadOnlyField(source='following.first_name')
-    last_name = serializers.ReadOnlyField(source='following.last_name')
-    is_subscribed = serializers.SerializerMethodField()
+class SubscriptionShowSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.ReadOnlyField(source='following.recipes.count')
-    avatar = Base64ImageField(source='following.avatar')
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = Follow
-        fields = (
-            'email', 'id', 'username', 'first_name',
-            'last_name', 'is_subscribed', 'recipes',
-            'recipes_count', 'avatar'
+        model = User
+        fields = UserSerializer.Meta.fields + (
+            'recipes',
+            'recipes_count',
         )
-
-    def validate(self, data):
-        user = data.get('user')
-        following = data.get('following')
-        if user == following:
-            raise serializers.ValidationError(
-                'Нельзя отписаться или подписаться на себя'
-            )
-
-        if Follow.objects.filter(
-            user=user, following=following
-        ).exists():
-            raise serializers.ValidationError(
-                'Подписка уже оформлена'
-            )
-
-        if not Follow.objects.filter(
-            user=user, following=following
-        ).exists():
-            raise serializers.ValidationError(
-                'Вы уже отписаны'
-            )
-        return data
-
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request:
-            user = request.user
-            if user.is_authenticated:
-                return Follow.objects.filter(
-                    following=obj.following.id, user=user.id
-                ).exists()
-        return False
 
     def get_recipes(self, obj):
         request = self.context.get('request')
         if request:
             recipes_limit = request.GET.get('recipes_limit')
             if recipes_limit is not None:
-                recipes = obj.following.recipes.all()[:int(recipes_limit)]
+                recipes = obj.recipes.all()[:int(recipes_limit)]
             else:
-                recipes = obj.following.recipes.all()
+                recipes = obj.recipes.all()
             if recipes:
                 serializer = EasyRecipeSerializer(
                     recipes,
@@ -328,3 +287,39 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 )
                 return serializer.data
         return []
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
+
+
+class SubscriptionCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Follow
+        fields = (
+            'user', 'following',
+        )
+
+    def validate(self, data):
+        user = data.get('user')
+        following = data.get('following')
+        if user == following:
+            raise serializers.ValidationError(
+                'Нельзя отписаться или подписаться на самого себя'
+            )
+        if Follow.objects.filter(
+            user=user,
+            following=following
+        ).exists():
+            raise serializers.ValidationError(
+                'Подписка уже оформлена'
+            )
+        return data
+
+    def to_representation(self, instance):
+        return SubscriptionShowSerializer(
+            instance.following,
+            context={
+                'request': self.context.get('request')
+            }
+        ).data
