@@ -40,7 +40,7 @@ class UserViewset(ModelViewSet):
         return Response(serializer.data)
 
     @action(
-        detail=False, methods=['put',],
+        detail=False, methods=['put', ],
         permission_classes=[IsAuthenticated],
         url_path='me/avatar'
     )
@@ -95,7 +95,7 @@ class UserViewset(ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['post',],
+    @action(detail=True, methods=['post', ],
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, pk):
         following = get_object_or_404(User, pk=pk)
@@ -192,7 +192,7 @@ class RecipeViewSet(ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
-    @action(detail=True, methods=['post',],
+    @action(detail=True, methods=['post', ],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         user = request.user
@@ -252,7 +252,7 @@ class RecipeViewSet(ModelViewSet):
 
         return response
 
-    @action(detail=True, methods=['post',],
+    @action(detail=True, methods=['post', ],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         user = request.user
