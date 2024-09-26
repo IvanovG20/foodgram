@@ -212,22 +212,15 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 'Список ингредиентов не может быть пустым!'
             )
         ing_set = {ingredient.get('id') for ingredient in ingredients}
-        ing_list = [ingredient.get('id') for ingredient in ingredients]
-        if len(ing_set) != len(ing_list):
+        if len(ing_set) != len(ingredients):
             raise serializers.ValidationError(
                 'Ингредиенты не могут повторяться'
             )
-        tag_set = {tag.id for tag in tags}
-        tag_list = [tag.id for tag in tags]
-        if len(tag_set) != len(tag_list):
+        tag_set = set(tags)
+        if len(tag_set) != len(tags):
             raise serializers.ValidationError(
                 'Теги не должны повторяться'
             )
-        for tag in tags:
-            if not Tag.objects.filter(id=tag.id).exists():
-                raise serializers.ValidationError(
-                    'Невозможно поставить несуществующий тег'
-                )
         return data
 
     def set_tags_ingredients(self, recipe, tags, ingredients):
@@ -238,7 +231,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe
             ) for ingredient in ingredients]
         )
-        recipe.tags.set(tags)
+        recipe.tags.set(tags, clear=True)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -252,7 +245,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         instance = super().update(instance, validated_data)
         instance.ingredients.clear()
-        instance.tags.clear()
         self.set_tags_ingredients(instance, tags, ingredients)
         return instance
 

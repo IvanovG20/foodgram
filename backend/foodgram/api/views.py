@@ -76,10 +76,9 @@ class UserViewset(ModelViewSet):
         serializer = PasswordChangeSerializer(
             data=request.data, context={'request': request}
         )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False,
             permission_classes=[IsAuthenticated])
@@ -176,7 +175,16 @@ class RecipeViewSet(ModelViewSet):
             request.build_absolute_uri('/recipes/' + str(recipe.pk) + '/')
         )
 
-    def shop_fav_post_method(self, model, user, recipe):
+    def shop_fav_post_method(self, model, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if model.objects.filter(
+            user=user, recipe=recipe
+        ).exists():
+            return Response(
+                {'errors': f'Этот рецепт есть в {model._meta.verbose_name}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         model.objects.create(user=user, recipe=recipe)
         serializer = EasyRecipeSerializer(recipe)
         return Response(
@@ -184,7 +192,16 @@ class RecipeViewSet(ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    def shop_fav_delete_method(self, model, user, recipe):
+    def shop_fav_delete_method(self, model, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if not model.objects.filter(
+            user=user, recipe=recipe
+        ).exists():
+            return Response(
+                {'errors': f'Этого рецепта нет в {model._meta.verbose_name}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         model.objects.get(
             user=user, recipe=recipe
         ).delete()
@@ -195,29 +212,11 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=['post', ],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if ShoppingCart.objects.filter(
-            user=user, recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Этот рецепт есть в списке покупок'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return self.shop_fav_post_method(ShoppingCart, user, recipe)
+        return self.shop_fav_post_method(ShoppingCart, request, pk)
 
     @shopping_cart.mapping.delete
     def shopping_cart_delete(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if not ShoppingCart.objects.filter(
-            user=user, recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Этого рецепта нет в списке покупок'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return self.shop_fav_delete_method(ShoppingCart, user, recipe)
+        return self.shop_fav_delete_method(ShoppingCart, request, pk)
 
     @action(
         detail=False, methods=['get'],
@@ -255,26 +254,8 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=['post', ],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if Favorite.objects.filter(
-            user=user, recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Этот рецепт есть в списке покупок'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return self.shop_fav_post_method(Favorite, user, recipe)
+        return self.shop_fav_post_method(Favorite, request, pk)
 
     @favorite.mapping.delete
     def favorite_delete(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if not Favorite.objects.filter(
-            user=user, recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Этого рецепта нет в списке покупок'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return self.shop_fav_delete_method(Favorite, user, recipe)
+        return self.shop_fav_delete_method(Favorite, request, pk)
