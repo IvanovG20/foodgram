@@ -12,7 +12,7 @@
 
 Склонируйте репозиторий и перейдите в папку backend/:
 ```
-git clone https://github.com/IvanovG20/foodgram.git
+git clone https://github.com/IvanovG/foodgram.git
 ```
 ```
 cd foodgram/backend/
